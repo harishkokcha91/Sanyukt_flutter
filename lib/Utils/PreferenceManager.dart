@@ -1,10 +1,21 @@
 import 'package:get_storage/get_storage.dart';
+import 'package:timesheetgt/Model/DriverJobFormDataModel.dart';
 
 
 final prefServices = PreferenceManager();
 
 class PreferenceManager {
   final storage = GetStorage();
+
+
+  saveDriverJobFormDataModel({required DriverJobFormDataModel? driverJobFormDataModel}) async {
+    storage.write('driverJobFormDataModel', driverJobFormDataModel);
+  }
+
+  Future<DriverJobFormDataModel> getDriverJobFormDataModel({driverJobFormDataModel}) async{
+    return storage.read('driverJobFormDataModel')??driverJobFormDataModel;
+  }
+
 
 
   saveLogin({required bool isLoggedIn}) async {

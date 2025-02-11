@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -5,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:timesheetgt/Constants/Constants.dart';
 import 'package:timesheetgt/Controller/DriverController.dart';
+import 'package:timesheetgt/Model/DriverJobFormDataModel.dart';
 import 'package:timesheetgt/Routing/Util/AppRoutes.dart';
 import 'package:timesheetgt/Routing/Util/Loader.dart';
 import 'package:timesheetgt/Utils/CustomNavigator.dart';
@@ -29,6 +31,8 @@ import '../Utils/Permissions.dart';
 import '../Utils/ShowMessages.dart';
 import '../Widgets/BorderButton.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 
 class DriverHome extends StatefulWidget {
@@ -257,6 +261,38 @@ class _DriverHomeState extends State<DriverHome> {
        }else{
          driverController.hasJobStarted.value = false;
        }
+       DriverJobFormDataModel? driverJobFormDataModel = await getDriverJobFormData();
+       if(driverJobFormDataModel != null){
+         siteNameController.text = driverJobFormDataModel.siteName.toString();
+         ticketNumberController.text = driverJobFormDataModel.ticketNumber.toString();
+         childTicketController.text = driverJobFormDataModel.childTicketNumber.toString();
+         faCodeController.text = driverJobFormDataModel.faCode.toString();
+         gallonInGeneratorController.text = driverJobFormDataModel.gallonInGenerator.toString();
+         gallonInTruckController.text = driverJobFormDataModel.gallonInTruck.toString();
+         pricePerGallonGeneratorController.text = driverJobFormDataModel.pricePerGallonGenerator.toString();
+         pricePerGallonController.text = driverJobFormDataModel.pricePerGallon.toString();
+         generatorHrContoller.text = driverJobFormDataModel.generatorHr.toString();
+         generatorMinContoller.text = driverJobFormDataModel.generatorMin.toString();
+         descriptionController.text = driverJobFormDataModel.description.toString();
+         matsIdContoller.text = driverJobFormDataModel.matsId.toString();
+
+         String ticketType = driverJobFormDataModel.ticketType.toString();
+         String closedOrUpdated = driverJobFormDataModel.selCloseOrUpdated.toString();
+
+         for(int i=0;i<driverController.ticketType.length;i++){
+           if(ticketType.toLowerCase() == driverController.ticketType[i].toLowerCase()){
+             driverController.selTicketType.value = ticketType;
+           }
+         }
+
+         for(int i=0;i<driverController.closeUpdated.length;i++){
+           if(closedOrUpdated.toLowerCase() == driverController.closeUpdated[i].toLowerCase()){
+             driverController.selCloseOrUpdated.value = closedOrUpdated;
+           }
+         }
+
+       }
+
     });
     super.initState();
   }
@@ -333,418 +369,475 @@ class _DriverHomeState extends State<DriverHome> {
               ):
               (driverController.isLoading.value)?Loader()
                   :ListView(
-                shrinkWrap: true,
-                children: [
-                  CustomSpacers.height24,
-                  TextFieldPrimary(
-                    controller: siteNameController,
-                    hint: "Site Name",
-                    isLabelNeeded: true,
-                    isMandatory: true,
-                    keyboardType: TextInputType.text,
-                    label: "Site Name",
-                  ),
-                  CustomSpacers.height16,
-                  TextFieldPrimary(
-                      controller: ticketNumberController,
-                      hint: "Ticket Number(eg. M1234)",
-                    isLabelNeeded: true,
-                    isMandatory: true,
-                    maxLetterLength: 10,
-                    keyboardType: TextInputType.text,
-                    label: "Ticket Number",
-                  ),
-                  CustomSpacers.height16,
-                  TextFieldPrimary(
-                    controller: childTicketController,
-                    hint: "Child(Refuel) Ticket(eg. M1234)",
-                    isLabelNeeded: true,
-                    isMandatory: false,
-                    maxLetterLength: 10,
-                    keyboardType: TextInputType.text,
-                    label: "Child(Refuel) Ticket",
-                  ),
-                  CustomSpacers.height16,
-                  TextFieldPrimary(
-                    controller: faCodeController,
-                    hint: "FA Code",
-                    isLabelNeeded: true,
-                    isMandatory: true,
-                    maxLetterLength: 8,
-                    arrTextInputFormatter: [
-                      FilteringTextInputFormatter.allow(
-                          RegExp(r'[0-9]')),
-                    ],
-                    keyboardType: TextInputType.number,
-                    label: "FA Code",
-                  ),
-                  CustomSpacers.height16,
-                  DropDownSecondary(
-                      value: driverController.selTicketType.value,
-                      typeList: driverController.ticketType,
-                      title: "Ticket Type",
-                      mandatory: true,
-                      borderColor: Colors.grey.shade400,
-                      onChanged: (v){
-                        driverController.selTicketType.value = v;
-                      }
-                  ),
-                  CustomSpacers.height16,
-                  TextFieldPrimary(
-                    controller: gallonInGeneratorController,
-                    hint: "Gallons in generator",
-                    isLabelNeeded: true,
-                    isMandatory: true,
-                    arrTextInputFormatter: [
-                      FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,3}')),
-                      DecimalTextInputFormatter(decimalRange: 3),
-                    ],
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    label: "Gallons (in Generators)",
-                  ),
-                  CustomSpacers.height16,
-                  TextFieldPrimary(
-                    controller: pricePerGallonGeneratorController,
-                    hint: "Price per Gallon \$ (in generator)",
-                    isLabelNeeded: true,
-                    isMandatory: true,
-                    arrTextInputFormatter: [
-                      FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,3}')),
-                      DecimalTextInputFormatter(decimalRange: 3),
-                    ],
-                    keyboardType: TextInputType.numberWithOptions(decimal: true),
-                    label: "Gallon Price \$ (in generator)",
-                  ),
-                  CustomSpacers.height16,
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextFieldPrimary(
-                          controller: generatorHrContoller,
-                          hint: "Generator Hours",
-                          isLabelNeeded: true,
-                          isMandatory: true,
-                          keyboardType: TextInputType.number,
-                          label: "Generator Hours",
-                          onChanged: (val){
-                          },
-                          arrTextInputFormatter: [
-                            FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                          ],
-                        ),
-                      ),
-                      hSpacer(8),
-                      Expanded(
-                        child: TextFieldPrimary(
-                          controller: generatorMinContoller,
-                          hint: "Generator Mins",
-                          isLabelNeeded: true,
-                          keyboardType: TextInputType.number,
-                          maxLetterLength: 2,
-                          arrTextInputFormatter: [
-                            FilteringTextInputFormatter.allow(
-                            RegExp(r'[0-9]')),
+                      shrinkWrap: true,
+                      children: [
+                          CustomSpacers.height24,
+                          TextFieldPrimary(
+                            controller: siteNameController,
+                            hint: "Site Name",
+                            isLabelNeeded: true,
+                            isMandatory: true,
+                            keyboardType: TextInputType.text,
+                            label: "Site Name",
+                          ),
+                          CustomSpacers.height16,
+                          TextFieldPrimary(
+                              controller: ticketNumberController,
+                              hint: "Ticket Number(eg. M1234)",
+                            isLabelNeeded: true,
+                            isMandatory: true,
+                            maxLetterLength: 10,
+                            keyboardType: TextInputType.text,
+                            label: "Ticket Number",
+                          ),
+                          CustomSpacers.height16,
+                          TextFieldPrimary(
+                            controller: childTicketController,
+                            hint: "Child(Refuel) Ticket(eg. M1234)",
+                            isLabelNeeded: true,
+                            isMandatory: false,
+                            maxLetterLength: 10,
+                            keyboardType: TextInputType.text,
+                            label: "Child(Refuel) Ticket",
+                          ),
+                          CustomSpacers.height16,
+                          TextFieldPrimary(
+                            controller: faCodeController,
+                            hint: "FA Code",
+                            isLabelNeeded: true,
+                            isMandatory: true,
+                            maxLetterLength: 8,
+                            arrTextInputFormatter: [
+                              FilteringTextInputFormatter.allow(
+                                  RegExp(r'[0-9]')),
                             ],
-                          label: "Generator Mins",
-                          onChanged: (val){
-                            if(int.parse(val) > 60){
-                              generatorMinContoller.text = "";
-                              ShowMessages().showSnackBarRed("Please enter correct minutes", "Minutes can not be greater than 60.");
-                            }
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  CustomSpacers.height16,
-                  TextFieldPrimary(
-                    controller: matsIdContoller,
-                    hint: "MATS Id",
-                    isLabelNeeded: true,
-                    isMandatory: true,
-                    maxLetterLength: 6,
-                    arrTextInputFormatter: [
-                      FilteringTextInputFormatter.allow(
-                          RegExp(r'[0-9]')),
-                    ],
-                    keyboardType: TextInputType.number,
-                    label: "MATS Id",
-                  ),
-                  CustomSpacers.height16,
-                  DropDownSecondary(
-                      value: driverController.selCloseOrUpdated.value,
-                      typeList: driverController.closeUpdated,
-                      title: "Close or Updated",
-                      mandatory: false,
-                      borderColor: Colors.grey.shade400,
-                      onChanged: (v){
-                        driverController.selCloseOrUpdated.value = v;
-                      }
-                  ),
-                  CustomSpacers.height16,
-                  TextFieldPrimary(
-                    controller: gallonInTruckController,
-                    hint: "Gallons in trucks",
-                    isLabelNeeded: true,
-                    isMandatory: true,
-                    arrTextInputFormatter: [
-                      FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,3}')),
-                      DecimalTextInputFormatter(decimalRange: 3),
-                    ],
-                    keyboardType: TextInputType.numberWithOptions(decimal: true),
-                    label: "Gallons (in trucks)",
-                  ),
-                  CustomSpacers.height16,
-
-                  TextFieldPrimary(
-                    controller: pricePerGallonController,
-                    hint: "Price per Gallon \$ (in trucks)",
-                    isLabelNeeded: true,
-                    isMandatory: true,
-                    arrTextInputFormatter: [
-                      FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,3}')),
-                      DecimalTextInputFormatter(decimalRange: 3),
-                    ],
-                    keyboardType: TextInputType.numberWithOptions(decimal: true),
-                    label: "Gallon Price \$ (in trucks)",
-                  ),
-                  CustomSpacers.height16,
-
-                  TextFieldPrimary(
-                    controller: descriptionController,
-                    hint: "Description",
-                    maxLines: 5,
-                    isLabelNeeded: true,
-                    isMandatory: false,
-                    keyboardType: TextInputType.text,
-                    label: "Description",
-                  ),
-                  CustomSpacers.height24,
-                  (_selectedImage.isNotEmpty)?
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: _selectedImage.length,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex:1,
-                              child: Image.file(
-                                _selectedImage[index],
-                                height: 88,
-                                width: Get.width,
+                            keyboardType: TextInputType.number,
+                            label: "FA Code",
+                          ),
+                          CustomSpacers.height16,
+                          DropDownSecondary(
+                              value: driverController.selTicketType.value,
+                              typeList: driverController.ticketType,
+                              title: "Ticket Type",
+                              mandatory: true,
+                              borderColor: Colors.grey.shade400,
+                              onChanged: (v){
+                                driverController.selTicketType.value = v;
+                              }
+                          ),
+                          CustomSpacers.height16,
+                          TextFieldPrimary(
+                            controller: gallonInGeneratorController,
+                            hint: "Gallons in generator",
+                            isLabelNeeded: true,
+                            isMandatory: true,
+                            arrTextInputFormatter: [
+                              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,3}')),
+                              DecimalTextInputFormatter(decimalRange: 3),
+                            ],
+                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                            label: "Gallons (in Generators)",
+                          ),
+                          CustomSpacers.height16,
+                          TextFieldPrimary(
+                            controller: pricePerGallonGeneratorController,
+                            hint: "Price per Gallon \$ (in generator)",
+                            isLabelNeeded: true,
+                            isMandatory: true,
+                            arrTextInputFormatter: [
+                              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,3}')),
+                              DecimalTextInputFormatter(decimalRange: 3),
+                            ],
+                            keyboardType: TextInputType.numberWithOptions(decimal: true),
+                            label: "Gallon Price \$ (in generator)",
+                          ),
+                          CustomSpacers.height16,
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextFieldPrimary(
+                                  controller: generatorHrContoller,
+                                  hint: "Generator Hours",
+                                  isLabelNeeded: true,
+                                  isMandatory: true,
+                                  keyboardType: TextInputType.number,
+                                  label: "Generator Hours",
+                                  onChanged: (val){
+                                  },
+                                  arrTextInputFormatter: [
+                                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                                  ],
+                                ),
                               ),
-                            ),
-                            hSpacer(8),
-                            InkWell(
-                              onTap: (){
-                                clearImage(index);
-                              },
-                              child: const Icon(
-                                Icons.close,
-                                color: Colors.red,
+                              hSpacer(8),
+                              Expanded(
+                                child: TextFieldPrimary(
+                                  controller: generatorMinContoller,
+                                  hint: "Generator Mins",
+                                  isLabelNeeded: true,
+                                  keyboardType: TextInputType.number,
+                                  maxLetterLength: 2,
+                                  arrTextInputFormatter: [
+                                    FilteringTextInputFormatter.allow(
+                                    RegExp(r'[0-9]')),
+                                    ],
+                                  label: "Generator Mins",
+                                  onChanged: (val){
+                                    if(int.parse(val) > 60){
+                                      generatorMinContoller.text = "";
+                                      ShowMessages().showSnackBarRed("Please enter correct minutes", "Minutes can not be greater than 60.");
+                                    }
+                                  },
+                                ),
                               ),
-                            )
-                          ],
-                        )
-                      );
-                    },
-                  ):
-                  const SizedBox.shrink(),
-                  CustomSpacers.height12,
-                  InkWell(
-                    onTap: () {
-                      FocusManager.instance.primaryFocus?.unfocus();
-                      Get.bottomSheet(Container(
-                        height: 170,
-                        decoration: const BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(20),
-                                topRight: Radius.circular(20)
-                            )
-                        ),
-                        child: Column(
-                          children: [
-
-                            Padding(
-                              padding: const EdgeInsets.only(left: 16.0, right: 16, top: 16),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-
-                                  Expanded(
-                                    child: Text(
-                              (_selectedImage.length>1)?"Upload Next File":"Upload File",
-                                      style: Get.textTheme.titleMedium!.copyWith(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
+                            ],
+                          ),
+                          CustomSpacers.height16,
+                          TextFieldPrimary(
+                            controller: matsIdContoller,
+                            hint: "MATS Id",
+                            isLabelNeeded: true,
+                            isMandatory: true,
+                            maxLetterLength: 6,
+                            arrTextInputFormatter: [
+                              FilteringTextInputFormatter.allow(
+                                  RegExp(r'[0-9]')),
+                            ],
+                            keyboardType: TextInputType.number,
+                            label: "MATS Id",
+                          ),
+                          CustomSpacers.height16,
+                          DropDownSecondary(
+                              value: driverController.selCloseOrUpdated.value,
+                              typeList: driverController.closeUpdated,
+                              title: "Close or Updated",
+                              mandatory: false,
+                              borderColor: Colors.grey.shade400,
+                              onChanged: (v){
+                                driverController.selCloseOrUpdated.value = v;
+                              }
+                          ),
+                          CustomSpacers.height16,
+                          TextFieldPrimary(
+                            controller: gallonInTruckController,
+                            hint: "Gallons in trucks",
+                            isLabelNeeded: true,
+                            isMandatory: true,
+                            arrTextInputFormatter: [
+                              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,3}')),
+                              DecimalTextInputFormatter(decimalRange: 3),
+                            ],
+                            keyboardType: TextInputType.numberWithOptions(decimal: true),
+                            label: "Gallons (in trucks)",
+                          ),
+                          CustomSpacers.height16,
+                          TextFieldPrimary(
+                            controller: pricePerGallonController,
+                            hint: "Price per Gallon \$ (in trucks)",
+                            isLabelNeeded: true,
+                            isMandatory: true,
+                            arrTextInputFormatter: [
+                              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,3}')),
+                              DecimalTextInputFormatter(decimalRange: 3),
+                            ],
+                            keyboardType: TextInputType.numberWithOptions(decimal: true),
+                            label: "Gallon Price \$ (in trucks)",
+                          ),
+                          CustomSpacers.height16,
+                          TextFieldPrimary(
+                            controller: descriptionController,
+                            hint: "Description",
+                            maxLines: 5,
+                            isLabelNeeded: true,
+                            isMandatory: false,
+                            keyboardType: TextInputType.text,
+                            label: "Description",
+                          ),
+                          CustomSpacers.height24,
+                          (_selectedImage.isNotEmpty)?
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: _selectedImage.length,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 8.0),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      flex:1,
+                                      child: Image.file(
+                                        _selectedImage[index],
+                                        height: 88,
+                                        width: Get.width,
                                       ),
                                     ),
-                                  ),
-
-                                  InkWell(
+                                    hSpacer(8),
+                                    InkWell(
                                       onTap: (){
-                                        Get.back();
+                                        clearImage(index);
                                       },
-                                      child: const Icon(Icons.close, ))
-                                ],
-                              ),
-                            ),
+                                      child: const Icon(
+                                        Icons.close,
+                                        color: Colors.red,
+                                      ),
+                                    )
+                                  ],
+                                )
+                              );
+                            },
+                          ):
+                          const SizedBox.shrink(),
+                          CustomSpacers.height12,
+                          InkWell(
+                            onTap: () {
+                              FocusManager.instance.primaryFocus?.unfocus();
+                              Get.bottomSheet(Container(
+                                height: 170,
+                                decoration: const BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(20),
+                                        topRight: Radius.circular(20)
+                                    )
+                                ),
+                                child: Column(
+                                  children: [
 
-                            const Divider(),
-
-                            Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: InkWell(
-                                      onTap: (){
-                                        Get.back();
-                                        _pickImage(ImageSource.gallery);
-                                      },
-                                      child: Column(
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 16.0, right: 16, top: 16),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
                                         children: [
-                                          const Icon(Icons.file_copy_outlined, color: Constants.COLOR_PRIMARY, size: 32,),
 
-                                          Text("Select From Device",
-                                            textAlign: TextAlign.center,
-                                            style: Get.textTheme.titleMedium!.copyWith(
-                                                fontSize: 14,
-                                                color: Constants.COLOR_PRIMARY
+                                          Expanded(
+                                            child: Text(
+                                      (_selectedImage.length>1)?"Upload Next File":"Upload File",
+                                              style: Get.textTheme.titleMedium!.copyWith(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w500,
+                                              ),
                                             ),
-                                          )
+                                          ),
 
+                                          InkWell(
+                                              onTap: (){
+                                                Get.back();
+                                              },
+                                              child: const Icon(Icons.close, ))
                                         ],
                                       ),
                                     ),
-                                  ),
 
-                                  Expanded(
-                                    child: InkWell(
-                                      onTap: (){
-                                        Get.back();
-                                        _pickImage(ImageSource.camera);
-                                        // Get.to(CameraCapturePage())
-                                      },
-                                      child: Column(
+                                    const Divider(),
+
+                                    Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: Row(
                                         children: [
-                                          const Icon(Icons.camera_alt_outlined, color: Constants.COLOR_PRIMARY, size: 32,),
+                                          Expanded(
+                                            child: InkWell(
+                                              onTap: (){
+                                                Get.back();
+                                                _pickImage(ImageSource.gallery);
+                                              },
+                                              child: Column(
+                                                children: [
+                                                  const Icon(Icons.file_copy_outlined, color: Constants.COLOR_PRIMARY, size: 32,),
 
-                                          Text("Capture and Upload",
-                                            textAlign: TextAlign.center,
-                                            style: Get.textTheme.titleMedium!.copyWith(
-                                                fontSize: 14,
-                                                color: Constants.COLOR_PRIMARY
+                                                  Text("Select From Device",
+                                                    textAlign: TextAlign.center,
+                                                    style: Get.textTheme.titleMedium!.copyWith(
+                                                        fontSize: 14,
+                                                        color: Constants.COLOR_PRIMARY
+                                                    ),
+                                                  )
+
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+
+                                          Expanded(
+                                            child: InkWell(
+                                              onTap: (){
+                                                Get.back();
+                                                _pickImage(ImageSource.camera);
+                                                // Get.to(CameraCapturePage())
+                                              },
+                                              child: Column(
+                                                children: [
+                                                  const Icon(Icons.camera_alt_outlined, color: Constants.COLOR_PRIMARY, size: 32,),
+
+                                                  Text("Capture and Upload",
+                                                    textAlign: TextAlign.center,
+                                                    style: Get.textTheme.titleMedium!.copyWith(
+                                                        fontSize: 14,
+                                                        color: Constants.COLOR_PRIMARY
+                                                    ),
+                                                  )
+
+                                                ],
+                                              ),
                                             ),
                                           )
-
                                         ],
                                       ),
                                     ),
-                                  )
+                                  ],
+                                ),
+                              ));
+                              // pickFile();
+                            },
+                            child: Container(
+                              height: 92,
+                              width: Get.width,
+                              decoration: BoxDecoration(
+                                  borderRadius:
+                                  BorderRadius.circular(10),
+                                  color: Constants
+                                      .COLOR_BACKGROUND),
+                              child: Row(
+                                mainAxisAlignment:
+                                MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.file_upload_outlined,
+                                    color: Constants.COLOR_PRIMARY,
+                                    size: 18,
+                                  ),
+                                  responsiveWidthSpacer(10),
+                                  Text(
+                                    "Upload File",
+                                    style: Get.theme.textTheme.titleSmall!
+                                        .copyWith(
+                                        fontWeight: FontWeight.w400,
+                                        color: Constants
+                                            .COLOR_PRIMARY),
+                                  ),
                                 ],
                               ),
                             ),
-                          ],
-                        ),
-                      ));
-                      // pickFile();
-                    },
-                    child: Container(
-                      height: 92,
-                      width: Get.width,
-                      decoration: BoxDecoration(
-                          borderRadius:
-                          BorderRadius.circular(10),
-                          color: Constants
-                              .COLOR_BACKGROUND),
-                      child: Row(
-                        mainAxisAlignment:
-                        MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.file_upload_outlined,
-                            color: Constants.COLOR_PRIMARY,
-                            size: 18,
                           ),
-                          responsiveWidthSpacer(10),
-                          Text(
-                            "Upload File",
-                            style: Get.theme.textTheme.titleSmall!
-                                .copyWith(
-                                fontWeight: FontWeight.w400,
-                                color: Constants
-                                    .COLOR_PRIMARY),
+                          CustomSpacers.height24,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              BorderButton(
+                                  onTap: () async{
+                                    if(kIsWeb) {
+                                      await getUserLocation();
+                                    }else{
+                                      await getCurrentLocationMobile();
+                                    }
+                                    DriverJobFormDataModel driverJobFormDataModel = DriverJobFormDataModel(
+                                        siteName: siteNameController.text.trim().toString(),
+                                        ticketNumber: ticketNumberController.text.trim().toString(),
+                                        faCode: faCodeController.text.trim().toString(),
+                                        ticketType: driverController.selTicketType.value,
+                                        gallonInGenerator: gallonInGeneratorController.text.trim().toString(),
+                                        pricePerGallonGenerator: pricePerGallonGeneratorController.text.trim().toString(),
+                                        generatorHr: generatorHrContoller.text.trim().toString(),
+                                        generatorMin: generatorMinContoller.text.trim().toString(),
+                                        matsId: matsIdContoller.text.trim().toString(),
+                                        gallonInTruck: gallonInTruckController.text.trim().toString(),
+                                        pricePerGallon: pricePerGallonController.text.trim().toString(),
+                                        driverJobId: PreferenceManager().getDriverJobId().toString(),
+                                        jobEndTime: "${DateTime.now().toIso8601String()}Z",
+                                        jobStartTime: "${DateTime.now().toIso8601String()}Z",
+                                        userLat: "$selAddLat",
+                                        userLong: "$selAddLong",
+                                      childTicketNumber: childTicketController.text.trim().toString(),
+                                      description: descriptionController.text.trim().toString(),
+                                      selCloseOrUpdated: driverController.selCloseOrUpdated.value,
+                                    );
+
+                                    saveDriverJobFormData(driverJobFormDataModel);
+
+                                    ShowMessages().showSnackBarRed("","Your entered data has been saved successfully.You can anytime submit your job.");
+
+                                  },
+                                  buttonText: "Save as Draft",
+                                hasPrimaryOnRight: true,
+                              ),
+                              PrimaryButton(
+                                onTap: () async{
+                                  driverController.isLoading.value = true;
+                                  for(int i=0;i<_selectedImage.length;i++){
+                                    await DriverApi().uploadImage(
+                                        selectedImage: _selectedImage[i],
+                                        driverId: int.parse(PreferenceManager().getUserId()),
+                                        driverJobId: driverController.driverStartJobDataModel.value!.data!.data![0].driverJobId
+                                    );
+                                  }
+
+                                  if(kIsWeb) {
+                                    await getUserLocation();
+                                  }else{
+                                    await getCurrentLocationMobile();
+                                  }
+
+                                  DriverJobFormDataModel driverJobFormDataModel = DriverJobFormDataModel(
+                                      siteName: siteNameController.text.trim().toString(),
+                                      ticketNumber: ticketNumberController.text.trim().toString(),
+                                      faCode: faCodeController.text.trim().toString(),
+                                      ticketType: driverController.selTicketType.value,
+                                      gallonInGenerator: gallonInGeneratorController.text.trim().toString(),
+                                      pricePerGallonGenerator: pricePerGallonGeneratorController.text.trim().toString(),
+                                      generatorHr: generatorHrContoller.text.trim().toString(),
+                                      generatorMin: generatorMinContoller.text.trim().toString(),
+                                      matsId: matsIdContoller.text.trim().toString(),
+                                      gallonInTruck: gallonInTruckController.text.trim().toString(),
+                                      pricePerGallon: pricePerGallonController.text.trim().toString(),
+                                      driverJobId: PreferenceManager().getDriverJobId().toString(),
+                                      jobEndTime: "${DateTime.now().toIso8601String()}Z",
+                                      jobStartTime: "${DateTime.now().toIso8601String()}Z",
+                                      userLat: "$selAddLat",
+                                      userLong: "$selAddLong"
+                                  );
+                                  PreferenceManager().saveDriverJobFormDataModel(driverJobFormDataModel: driverJobFormDataModel);
+                                  var jsonParam = {
+                                    "driver_job_id": PreferenceManager().getDriverJobId(),
+                                    "site_name":siteNameController.text.trim().toString(),
+                                    "req_frm":0,
+                                    "ticket_number": ticketNumberController.text.trim().toString(),
+                                    "child_ticket": childTicketController.text.trim().toString(),
+                                    "fa_code": faCodeController.text.trim().toString(),
+                                    "ticket_type": driverController.selTicketType.value,
+                                    "gallons": gallonInGeneratorController.text.trim().toString(),
+                                    "generator_hr": generatorHrContoller.text.trim().toString(),
+                                    "generator_min": generatorMinContoller.text.trim().toString(),
+                                    "mats_id": matsIdContoller.text.trim().toString(),
+                                    "closed_or_updated": (driverController.selCloseOrUpdated.value == "Select")?"":driverController.selCloseOrUpdated.value,
+                                    "gallons_in_truck": gallonInTruckController.text.trim().toString(),
+                                    "price_per_gal_for_truck": pricePerGallonController.text.trim().toString(),
+                                    "price_per_gal_for_generator": pricePerGallonGeneratorController.text.trim().toString(),
+                                    "status_id": 0,
+                                    "job_user_end_time": "${DateTime.now().toIso8601String()}Z",
+                                    "job_user_start_time": "${DateTime.now().toIso8601String()}Z",
+                                    "job_start_longitude": "",
+                                    "job_start_latitude": "",
+                                    "job_start_location": "",
+                                    "job_end_location": "",
+                                    "job_end_longitude": "$selAddLong",
+                                    "job_end_latitude": "$selAddLat",
+                                    "job_start_ip_address": "",
+                                    "job_end_ip_address": "",
+                                    "description": descriptionController.text.trim().toString(),
+                                    "created_by": int.parse(PreferenceManager().getUserId()),
+                                    "user_time": "${DateTime.now().toIso8601String()}Z",
+                                    "documents": "",
+                                    "spmode": 0
+                                  };
+                                  print("jsonParam>>>> $jsonParam");
+                                  await driverController.driverJob(jsonParam: jsonParam,isJobStarted: false);
+                                  driverController.isLoading.value = false;
+                                },
+                                buttonText: "Submit Job",
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  CustomSpacers.height24,
-                  PrimaryButton(
-                    onTap: () async{
-                      driverController.isLoading.value = true;
-                      for(int i=0;i<_selectedImage.length;i++){
-                        await DriverApi().uploadImage(
-                            selectedImage: _selectedImage[i],
-                            driverId: int.parse(PreferenceManager().getUserId()),
-                            driverJobId: driverController.driverStartJobDataModel.value!.data!.data![0].driverJobId
-                        );
-                      }
-
-                      if(kIsWeb) {
-                        await getUserLocation();
-                      }else{
-                        await getCurrentLocationMobile();
-                      }
-                      var jsonParam = {
-                        "driver_job_id": PreferenceManager().getDriverJobId(),
-                        "site_name":siteNameController.text.trim().toString(),
-                        "req_frm":0,
-                        "ticket_number": ticketNumberController.text.trim().toString(),
-                        "child_ticket": childTicketController.text.trim().toString(),
-                        "fa_code": faCodeController.text.trim().toString(),
-                        "ticket_type": driverController.selTicketType.value,
-                        "gallons": gallonInGeneratorController.text.trim().toString(),
-                        "generator_hr": generatorHrContoller.text.trim().toString(),
-                        "generator_min": generatorMinContoller.text.trim().toString(),
-                        "mats_id": matsIdContoller.text.trim().toString(),
-                        "closed_or_updated": (driverController.selCloseOrUpdated.value == "Select")?"":driverController.selCloseOrUpdated.value,
-                        "gallons_in_truck": gallonInTruckController.text.trim().toString(),
-                        "price_per_gal_for_truck": pricePerGallonController.text.trim().toString(),
-                        "price_per_gal_for_generator": pricePerGallonGeneratorController.text.trim().toString(),
-                        "status_id": 0,
-                        "job_user_end_time": "${DateTime.now().toIso8601String()}Z",
-                        "job_user_start_time": "${DateTime.now().toIso8601String()}Z",
-                        "job_start_longitude": "",
-                        "job_start_latitude": "",
-                        "job_start_location": "",
-                        "job_end_location": "",
-                        "job_end_longitude": "$selAddLong",
-                        "job_end_latitude": "$selAddLat",
-                        "job_start_ip_address": "",
-                        "job_end_ip_address": "",
-                        "description": descriptionController.text.trim().toString(),
-                        "created_by": int.parse(PreferenceManager().getUserId()),
-                        "user_time": "${DateTime.now().toIso8601String()}Z",
-                        "documents": "",
-                        "spmode": 0
-                      };
-                      print("jsonParam>>>> $jsonParam");
-                      await driverController.driverJob(jsonParam: jsonParam,isJobStarted: false);
-                      driverController.isLoading.value = false;
-                    },
-                    buttonText: "Submit Job",
-                  ),
-                  CustomSpacers.height24,
-
-
+                          CustomSpacers.height24,
                 ],
               );
             }
@@ -807,20 +900,29 @@ class _DriverHomeState extends State<DriverHome> {
           }).toList();
         },
       ),
-
-      // InkWell(
-      //   onTap: (){
-      //     CustomNavigator.pushReplace(Routes.LOGOUT);
-      //   },
-      //   child: const Icon(
-      //     Icons.logout,
-      //     color: Colors.white,
-      //     size: 24,
-      //   ),
-      // ),
       showBackButton: false,
       title: "Hi, ${PreferenceManager().getUserName()}",
     );
+  }
+
+  Future<void> saveDriverJobFormData(DriverJobFormDataModel model) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String jsonString = jsonEncode(model.toJson()); // Convert model to JSON string
+    await prefs.setString('driverJobFormData', jsonString);
+  }
+  Future<DriverJobFormDataModel?> getDriverJobFormData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? jsonString = prefs.getString('driverJobFormData');
+
+    if (jsonString == null) return null; // Return null if no data is found
+
+    Map<String, dynamic> jsonMap = jsonDecode(jsonString); // Decode JSON
+    return DriverJobFormDataModel.fromJson(jsonMap);
+  }
+
+  Future<void> removeDriverJobFormData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('driverJobFormData');
   }
 
   void clearControllers() {
