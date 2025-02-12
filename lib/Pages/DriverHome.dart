@@ -22,7 +22,7 @@ import 'package:location/location.dart' as locationLib;
 import 'package:geolocator/geolocator.dart' as geolocator;
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+// import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:file_picker/file_picker.dart';
 import '../Constants/ApiEndPoints.dart';
 import '../Model/SelectedFileModel.dart';
@@ -46,7 +46,7 @@ class _DriverHomeState extends State<DriverHome> {
 
   var googleGeocoding = gCoding.GoogleGeocoding(ApiEndPoints.googleAPIKey);
   gCoding.GeocodingResult? selectedAddressOnMap ;
-  Rxn<LatLng> newCoordinates =  Rxn<LatLng>();
+  // Rxn<LatLng> newCoordinates =  Rxn<LatLng>();
   RxString stMyLocation = "".obs;
   late double selAddLat;
   late double selAddLong;
@@ -74,7 +74,7 @@ class _DriverHomeState extends State<DriverHome> {
     selAddLat = currLoc.latitude;
     selAddLong = currLoc.longitude;
 
-    newCoordinates.value = LatLng(selAddLat, selAddLong);
+    // newCoordinates.value = LatLng(selAddLat, selAddLong);
   }
   static getUserCurrentLocation() async {
     geolocator.Position currentLocation = await locateUser();
@@ -106,7 +106,7 @@ class _DriverHomeState extends State<DriverHome> {
     locationLib.Location location = new locationLib.Location();
     locationLib.LocationData locationData = await location.getLocation();
     print("Location data ${locationData.latitude} ${locationData.longitude}");
-    newCoordinates.value = LatLng(locationData.latitude!, locationData.longitude!);
+    // newCoordinates.value = LatLng(locationData.latitude!, locationData.longitude!);
     selAddLat = locationData.latitude!;
     selAddLong = locationData.longitude!;
   }
