@@ -192,6 +192,7 @@ class _DriverHomeState extends State<DriverHome> {
     Get.dialog(
       AlertDialog(
         content: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
@@ -202,7 +203,8 @@ class _DriverHomeState extends State<DriverHome> {
             ),
             CustomSpacers.height16,
             Text(
-              "All your data and reports will be lost if you proceed.",
+              "Are you sure you want to delete your account? This action is permanent and will remove all your data from our system. We will no longer retain any of your information after deletion. This cannot be undone.",
+              textAlign: TextAlign.center,
               style: Get.theme.textTheme.titleMedium
                   ?.copyWith(
                   fontWeight: FontWeight.w400),
