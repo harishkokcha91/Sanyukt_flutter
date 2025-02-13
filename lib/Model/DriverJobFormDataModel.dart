@@ -18,6 +18,7 @@ class DriverJobFormDataModel{
   String? jobEndTime;
   String? userLat;
   String? userLong;
+  String? saveType;
 
   DriverJobFormDataModel({
     required this.siteName,
@@ -39,6 +40,7 @@ class DriverJobFormDataModel{
     required this.jobStartTime,
     required this.userLat,
     required this.userLong,
+    required this.saveType
   });
 
   // Convert object to JSON
@@ -63,6 +65,7 @@ class DriverJobFormDataModel{
       'jobStartTime': jobStartTime,
       'userLat': userLat,
       'userLong': userLong,
+      "saveType":saveType
 
     };
   }
@@ -89,6 +92,7 @@ class DriverJobFormDataModel{
       jobStartTime: json['jobStartTime'],
       userLat: json['userLat'],
       userLong: json['userLong'],
+        saveType:json['saveType']
     );
   }
 

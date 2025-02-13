@@ -9,6 +9,7 @@ import '../Utils/CustomNavigator.dart';
 import '../Utils/PreferenceManager.dart';
 import '../Utils/ShowMessages.dart';
 import 'AuthController.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DriverController extends GetxController with StateMixin {
   RxBool isLoading = false.obs;
@@ -63,7 +64,7 @@ class DriverController extends GetxController with StateMixin {
           PreferenceManager().saveDriverJobId(driverJobId: driverStartJobDataModel.value!.data!.data![0].driverJobId);
         }else{
           hasJobStarted.value = false;
-          PreferenceManager().saveDriverJobId(driverJobId: 0);
+          removeDriverJobFormData();
         }
         ShowMessages().showSnackBarGreen("", driverStartJobDataModel.value!.msg);
         print("data>>63>> ${driverStartJobDataModel.value!.status}");
@@ -76,6 +77,12 @@ class DriverController extends GetxController with StateMixin {
 
     }
 
+  }
+
+  Future<void> removeDriverJobFormData() async {
+    PreferenceManager().saveDriverJobId(driverJobId: 0);
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('driverJobFormData');
   }
 
 
