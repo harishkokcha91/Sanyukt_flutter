@@ -10,6 +10,7 @@ import '../Utils/Spacers.dart';
 import '../Widgets/BorderButton.dart';
 import '../Widgets/ParentWidgetMobile.dart';
 import '../Widgets/PrimaryButton.dart';
+import 'package:intl/intl.dart';
 
 class DriverTicketListPage extends StatefulWidget {
   const DriverTicketListPage({super.key});
@@ -100,36 +101,136 @@ class _DriverTicketListPageState extends State<DriverTicketListPage> {
           child: Obx(() {
             return (driverController.isLoading.value)?Loader()
                 :ListView(
-              shrinkWrap: true,
-              children: [
-                CustomSpacers.height32,
-                ListView.builder(
-                  itemCount: 15,
-                    physics: NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemBuilder: (context, index) {
-                      return Container(
-                        padding: EdgeInsets.all(12),
-                        margin: EdgeInsets.only(bottom: 12),
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                          border: Border.all(
-                            width: 1,
-                            color: Constants.COLOR_PRIMARY,
-                          ),
-                          borderRadius: BorderRadius.all(Radius.circular(10))
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
+                  shrinkWrap: true,
+                  children: [
+                    CustomSpacers.height32,
+                    ListView.builder(
+                      itemCount: 15,
+                        physics: const NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemBuilder: (context, index) {
+                          return Container(
+                            padding: EdgeInsets.all(12),
+                            margin: EdgeInsets.only(bottom: 12),
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                              border: Border.all(
+                                width: 1,
+                                color: Constants.COLOR_PRIMARY,
+                              ),
+                              borderRadius: BorderRadius.all(Radius.circular(10))
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
 
-                          ],
-                        )
-                      );
-                    },
-                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      DateFormat("dd MMM, yyyy").format(DateTime.now()),
+                                      style: Get.theme.textTheme.titleMedium!.copyWith(
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 18
+                                      ),
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          "Naranul",
+                                          style: Get.theme.textTheme.titleMedium!.copyWith(
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 18
+                                          ),
+                                        ),
+                                        const Icon(
+                                          Icons.navigation_rounded,
+                                          color: Constants.COLOR_PRIMARY,
+                                          size: 24,
+                                        )
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                CustomSpacers.height8,
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "#M12345678",
+                                      style: Get.theme.textTheme.titleMedium!.copyWith(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 18
+                                      ),
+                                    ),
+                                    Text(
+                                      "#M12345678",
+                                      style: Get.theme.textTheme.titleMedium!.copyWith(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 16
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                CustomSpacers.height8,
 
-                CustomSpacers.height24,
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "FA Code",
+                                          style: Get.theme.textTheme.titleMedium!.copyWith(
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 18
+                                          ),
+                                        ),
+                                        vSpacer(2),
+                                        Text(
+                                          "1234543567",
+                                          style: Get.theme.textTheme.titleMedium!.copyWith(
+                                              fontWeight: FontWeight.w400,
+                                              fontSize: 16
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Mats Id",
+                                          style: Get.theme.textTheme.titleMedium!.copyWith(
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 18
+                                          ),
+                                        ),
+                                        vSpacer(2),
+                                        Text(
+                                          "989888",
+                                          style: Get.theme.textTheme.titleMedium!.copyWith(
+                                              fontWeight: FontWeight.w400,
+                                              fontSize: 16
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+
+
+
+
+                              ],
+                            )
+                          );
+                        },
+                    ),
+
+                    CustomSpacers.height24,
               ],
             );
           }
