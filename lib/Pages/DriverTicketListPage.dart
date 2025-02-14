@@ -90,7 +90,68 @@ class _DriverTicketListPageState extends State<DriverTicketListPage> {
     );
   }
 
+  void showBottomSheet({content}) {
+    showModalBottomSheet(
+        backgroundColor: Colors.white,
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(16),
+          topRight: Radius.circular(16),
+        )),
+        context: context,
+        isScrollControlled: true,
+        builder: (_){
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CustomSpacers.height24,
+              Align(
+                alignment: Alignment.center,
+                child: Container(
+                  height: 4,
+                  width: 100,
+                  decoration: BoxDecoration(
+                      color: Colors.grey,
+                      borderRadius: BorderRadius.circular(2)
 
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 16, right: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    InkWell(
+                      onTap: (){
+                        Navigator.pop(context);
+                      },
+                      child: const Icon(
+                          Icons.clear,
+                        size: 24,
+                      )
+                    ),
+
+
+                  ],
+                ),
+              ),
+              Text(
+                 content,
+                style: Get.theme.textTheme.titleMedium!.copyWith(
+                    fontSize: 14,
+                    height:1.5,
+                    fontWeight: FontWeight.w400
+                ),
+              ),
+              CustomSpacers.height24,
+
+
+            ],
+          );
+
+        });
+  }
   @override
   Widget build(BuildContext context) {
     return ParentWidgetMobile(
@@ -134,22 +195,14 @@ class _DriverTicketListPageState extends State<DriverTicketListPage> {
                                         fontSize: 18
                                       ),
                                     ),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          "Naranul",
-                                          style: Get.theme.textTheme.titleMedium!.copyWith(
-                                              fontWeight: FontWeight.w500,
-                                              fontSize: 18
-                                          ),
-                                        ),
-                                        const Icon(
-                                          Icons.navigation_rounded,
-                                          color: Constants.COLOR_PRIMARY,
-                                          size: 24,
-                                        )
-                                      ],
+                                    Text(
+                                      "Naranul",
+                                      style: Get.theme.textTheme.titleMedium!.copyWith(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 18
+                                      ),
                                     ),
+
                                   ],
                                 ),
                                 CustomSpacers.height8,
@@ -167,7 +220,7 @@ class _DriverTicketListPageState extends State<DriverTicketListPage> {
                                       "#M12345678",
                                       style: Get.theme.textTheme.titleMedium!.copyWith(
                                           fontWeight: FontWeight.w500,
-                                          fontSize: 16
+                                          fontSize: 18
                                       ),
                                     ),
                                   ],
@@ -192,7 +245,7 @@ class _DriverTicketListPageState extends State<DriverTicketListPage> {
                                           "1234543567",
                                           style: Get.theme.textTheme.titleMedium!.copyWith(
                                               fontWeight: FontWeight.w400,
-                                              fontSize: 16
+                                              fontSize: 14
                                           ),
                                         ),
                                       ],
@@ -213,13 +266,90 @@ class _DriverTicketListPageState extends State<DriverTicketListPage> {
                                           "989888",
                                           style: Get.theme.textTheme.titleMedium!.copyWith(
                                               fontWeight: FontWeight.w400,
-                                              fontSize: 16
+                                              fontSize: 14
                                           ),
                                         ),
                                       ],
                                     ),
                                   ],
                                 ),
+                                CustomSpacers.height4,
+                                Divider(
+                                  color: Colors.grey.shade400,
+                                  height: 1,
+                                  thickness: 1,
+                                ),
+                                CustomSpacers.height4,
+
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    InkWell(
+                                      onTap: (){
+                                        showBottomSheet(content: "These are special Notes");
+                                      },
+                                      child: Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.event_note_sharp,
+                                            color: Constants.COLOR_PRIMARY,
+                                            size: 18,
+                                          ),
+                                          hSpacer(2),
+                                          Text(
+                                            "Notes",
+                                            style: Get.theme.textTheme.titleMedium!.copyWith(
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 18
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+
+                                    InkWell(
+                                      onTap: (){
+                                        showBottomSheet(content: "Job Description");
+                                      },
+                                      child: Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.info_outline,
+                                            color: Constants.COLOR_PRIMARY,
+                                            size: 18,
+                                          ),
+                                          hSpacer(2),
+                                          Text(
+                                            "Description",
+                                            style: Get.theme.textTheme.titleMedium!.copyWith(
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 18
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.navigation_rounded,
+                                          color: Constants.COLOR_PRIMARY,
+                                          size: 18,
+                                        ),
+                                        hSpacer(2),
+                                        Text(
+                                          "Direction",
+                                          style: Get.theme.textTheme.titleMedium!.copyWith(
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 18
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+
 
 
 
