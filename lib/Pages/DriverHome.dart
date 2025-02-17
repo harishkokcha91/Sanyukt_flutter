@@ -32,6 +32,7 @@ import '../Utils/ShowMessages.dart';
 import '../Widgets/BorderButton.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 
 
@@ -191,6 +192,7 @@ class _DriverHomeState extends State<DriverHome> {
     Get.dialog(
       AlertDialog(
         content: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
@@ -201,7 +203,8 @@ class _DriverHomeState extends State<DriverHome> {
             ),
             CustomSpacers.height16,
             Text(
-              "All your data and reports will be lost if you proceed.",
+              "Are you sure you want to delete your account? This action is permanent and will remove all your data from our system. We will no longer retain any of your information after deletion. This cannot be undone.",
+              textAlign: TextAlign.center,
               style: Get.theme.textTheme.titleMedium
                   ?.copyWith(
                   fontWeight: FontWeight.w400),
@@ -284,7 +287,6 @@ class _DriverHomeState extends State<DriverHome> {
              driverController.selTicketType.value = ticketType;
            }
          }
-
          for(int i=0;i<driverController.closeUpdated.length;i++){
            if(closedOrUpdated.toLowerCase() == driverController.closeUpdated[i].toLowerCase()){
              driverController.selCloseOrUpdated.value = closedOrUpdated;
@@ -725,36 +727,81 @@ class _DriverHomeState extends State<DriverHome> {
                             children: [
                               BorderButton(
                                   onTap: () async{
-                                    if(kIsWeb) {
-                                      await getUserLocation();
+                                    bool isOnline = await checkInternet();
+                                    print("isOnline>>> $isOnline");
+                                    if(isOnline) {
+                                      if (kIsWeb) {
+                                        await getUserLocation();
+                                      } else {
+                                        await getCurrentLocationMobile();
+                                      }
+                                      DriverJobFormDataModel driverJobFormDataModel = DriverJobFormDataModel(
+                                          siteName: siteNameController.text
+                                              .trim().toString(),
+                                          ticketNumber: ticketNumberController
+                                              .text.trim().toString(),
+                                          faCode: faCodeController.text.trim()
+                                              .toString(),
+                                          ticketType: driverController
+                                              .selTicketType.value,
+                                          gallonInGenerator: gallonInGeneratorController
+                                              .text.trim().toString(),
+                                          pricePerGallonGenerator: pricePerGallonGeneratorController
+                                              .text.trim().toString(),
+                                          generatorHr: generatorHrContoller.text
+                                              .trim().toString(),
+                                          generatorMin: generatorMinContoller
+                                              .text.trim().toString(),
+                                          matsId: matsIdContoller.text.trim()
+                                              .toString(),
+                                          gallonInTruck: gallonInTruckController
+                                              .text.trim().toString(),
+                                          pricePerGallon: pricePerGallonController
+                                              .text.trim().toString(),
+                                          driverJobId: PreferenceManager()
+                                              .getDriverJobId()
+                                              .toString(),
+                                          jobEndTime: "${DateTime.now()
+                                              .toIso8601String()}Z",
+                                          jobStartTime: "${DateTime.now()
+                                              .toIso8601String()}Z",
+                                          userLat: "$selAddLat",
+                                          userLong: "$selAddLong",
+                                          childTicketNumber: childTicketController
+                                              .text.trim().toString(),
+                                          description: descriptionController
+                                              .text.trim().toString(),
+                                          selCloseOrUpdated: driverController
+                                              .selCloseOrUpdated.value,
+                                          saveType: "DRAFT"
+                                      );
+                                      saveDriverJobFormData(driverJobFormDataModel);
                                     }else{
-                                      await getCurrentLocationMobile();
+                                      DriverJobFormDataModel driverJobFormDataModel = DriverJobFormDataModel(
+                                          siteName: siteNameController.text.trim().toString(),
+                                          ticketNumber: ticketNumberController.text.trim().toString(),
+                                          faCode: faCodeController.text.trim().toString(),
+                                          ticketType: driverController.selTicketType.value,
+                                          gallonInGenerator: gallonInGeneratorController.text.trim().toString(),
+                                          pricePerGallonGenerator: pricePerGallonGeneratorController.text.trim().toString(),
+                                          generatorHr: generatorHrContoller.text.trim().toString(),
+                                          generatorMin: generatorMinContoller.text.trim().toString(),
+                                          matsId: matsIdContoller.text.trim().toString(),
+                                          gallonInTruck: gallonInTruckController.text.trim().toString(),
+                                          pricePerGallon: pricePerGallonController.text.trim().toString(),
+                                          driverJobId: PreferenceManager().getDriverJobId().toString(),
+                                          jobEndTime: "${DateTime.now().toIso8601String()}Z",
+                                          jobStartTime: "${DateTime.now().toIso8601String()}Z",
+                                          userLat: "",
+                                          userLong: "",
+                                          childTicketNumber: childTicketController.text.trim().toString(),
+                                          description: descriptionController.text.trim().toString(),
+                                          selCloseOrUpdated: driverController.selCloseOrUpdated.value,
+                                          saveType: "DRAFT"
+                                      );
+                                      saveDriverJobFormData(driverJobFormDataModel);
                                     }
-                                    DriverJobFormDataModel driverJobFormDataModel = DriverJobFormDataModel(
-                                        siteName: siteNameController.text.trim().toString(),
-                                        ticketNumber: ticketNumberController.text.trim().toString(),
-                                        faCode: faCodeController.text.trim().toString(),
-                                        ticketType: driverController.selTicketType.value,
-                                        gallonInGenerator: gallonInGeneratorController.text.trim().toString(),
-                                        pricePerGallonGenerator: pricePerGallonGeneratorController.text.trim().toString(),
-                                        generatorHr: generatorHrContoller.text.trim().toString(),
-                                        generatorMin: generatorMinContoller.text.trim().toString(),
-                                        matsId: matsIdContoller.text.trim().toString(),
-                                        gallonInTruck: gallonInTruckController.text.trim().toString(),
-                                        pricePerGallon: pricePerGallonController.text.trim().toString(),
-                                        driverJobId: PreferenceManager().getDriverJobId().toString(),
-                                        jobEndTime: "${DateTime.now().toIso8601String()}Z",
-                                        jobStartTime: "${DateTime.now().toIso8601String()}Z",
-                                        userLat: "$selAddLat",
-                                        userLong: "$selAddLong",
-                                      childTicketNumber: childTicketController.text.trim().toString(),
-                                      description: descriptionController.text.trim().toString(),
-                                      selCloseOrUpdated: driverController.selCloseOrUpdated.value,
-                                    );
-
-                                    saveDriverJobFormData(driverJobFormDataModel);
-
-                                    ShowMessages().showSnackBarRed("","Your entered data has been saved successfully.You can anytime submit your job.");
+                                    ShowMessages().showSnackBarRed("", "Your entered data has been saved successfully. You can submit your job at any time.");
 
                                   },
                                   buttonText: "Save as Draft",
@@ -762,76 +809,171 @@ class _DriverHomeState extends State<DriverHome> {
                               ),
                               PrimaryButton(
                                 onTap: () async{
-                                  driverController.isLoading.value = true;
-                                  for(int i=0;i<_selectedImage.length;i++){
-                                    await DriverApi().uploadImage(
-                                        selectedImage: _selectedImage[i],
-                                        driverId: int.parse(PreferenceManager().getUserId()),
-                                        driverJobId: driverController.driverStartJobDataModel.value!.data!.data![0].driverJobId
+                                  bool isOnline = await checkInternet();
+                                  print("isOnline>>> $isOnline");
+                                  if(isOnline) {
+                                    driverController.isLoading.value = true;
+                                    for (int i = 0; i < _selectedImage.length; i++) {
+                                      await DriverApi().uploadImage(
+                                          selectedImage: _selectedImage[i],
+                                          driverId: int.parse(
+                                              PreferenceManager().getUserId()),
+                                          driverJobId: driverController
+                                              .driverStartJobDataModel.value!
+                                              .data!.data![0].driverJobId
+                                      );
+                                    }
+                                    if (kIsWeb) {
+                                      await getUserLocation();
+                                    } else {
+                                      await getCurrentLocationMobile();
+                                    }
+                                    DriverJobFormDataModel driverJobFormDataModel = DriverJobFormDataModel(
+                                        siteName: siteNameController.text.trim()
+                                            .toString(),
+                                        ticketNumber: ticketNumberController
+                                            .text.trim().toString(),
+                                        faCode: faCodeController.text.trim()
+                                            .toString(),
+                                        ticketType: driverController
+                                            .selTicketType.value,
+                                        gallonInGenerator: gallonInGeneratorController
+                                            .text.trim().toString(),
+                                        pricePerGallonGenerator: pricePerGallonGeneratorController
+                                            .text.trim().toString(),
+                                        generatorHr: generatorHrContoller.text
+                                            .trim().toString(),
+                                        generatorMin: generatorMinContoller.text
+                                            .trim().toString(),
+                                        matsId: matsIdContoller.text.trim()
+                                            .toString(),
+                                        gallonInTruck: gallonInTruckController
+                                            .text.trim().toString(),
+                                        pricePerGallon: pricePerGallonController
+                                            .text.trim().toString(),
+                                        driverJobId: PreferenceManager()
+                                            .getDriverJobId()
+                                            .toString(),
+                                        jobEndTime: "${DateTime.now()
+                                            .toIso8601String()}Z",
+                                        jobStartTime: "${DateTime.now()
+                                            .toIso8601String()}Z",
+                                        userLat: "$selAddLat",
+                                        userLong: "$selAddLong",
+                                        childTicketNumber: childTicketController
+                                            .text.trim().toString(),
+                                        description: descriptionController.text
+                                            .trim().toString(),
+                                        selCloseOrUpdated: driverController
+                                            .selCloseOrUpdated.value,
+                                        saveType: "SUBMIT"
                                     );
+                                    saveDriverJobFormData(driverJobFormDataModel);
+                                    var jsonParam = {
+                                      "driver_job_id": PreferenceManager()
+                                          .getDriverJobId(),
+                                      "site_name": siteNameController.text
+                                          .trim().toString(),
+                                      "req_frm": 0,
+                                      "ticket_number": ticketNumberController
+                                          .text.trim().toString(),
+                                      "child_ticket": childTicketController.text
+                                          .trim().toString(),
+                                      "fa_code": faCodeController.text.trim()
+                                          .toString(),
+                                      "ticket_type": driverController
+                                          .selTicketType.value,
+                                      "gallons": gallonInGeneratorController
+                                          .text.trim().toString(),
+                                      "generator_hr": generatorHrContoller.text
+                                          .trim().toString(),
+                                      "generator_min": generatorMinContoller
+                                          .text.trim().toString(),
+                                      "mats_id": matsIdContoller.text.trim()
+                                          .toString(),
+                                      "closed_or_updated": (driverController
+                                          .selCloseOrUpdated.value == "Select")
+                                          ? ""
+                                          : driverController.selCloseOrUpdated
+                                          .value,
+                                      "gallons_in_truck": gallonInTruckController
+                                          .text.trim().toString(),
+                                      "price_per_gal_for_truck": pricePerGallonController
+                                          .text.trim().toString(),
+                                      "price_per_gal_for_generator": pricePerGallonGeneratorController
+                                          .text.trim().toString(),
+                                      "status_id": 0,
+                                      "job_user_end_time": "${DateTime.now()
+                                          .toIso8601String()}Z",
+                                      "job_user_start_time": "${DateTime.now()
+                                          .toIso8601String()}Z",
+                                      "job_start_longitude": "",
+                                      "job_start_latitude": "",
+                                      "job_start_location": "",
+                                      "job_end_location": "",
+                                      "job_end_longitude": "$selAddLong",
+                                      "job_end_latitude": "$selAddLat",
+                                      "job_start_ip_address": "",
+                                      "job_end_ip_address": "",
+                                      "description": descriptionController.text
+                                          .trim().toString(),
+                                      "created_by": int.parse(
+                                          PreferenceManager().getUserId()),
+                                      "user_time": "${DateTime.now()
+                                          .toIso8601String()}Z",
+                                      "documents": "",
+                                      "spmode": 0
+                                    };
+                                    print("jsonParam>>>> $jsonParam");
+                                    await driverController.driverJob(
+                                        jsonParam: jsonParam,
+                                        isJobStarted: false);
+                                    driverController.isLoading.value = false;
                                   }
-
-                                  if(kIsWeb) {
-                                    await getUserLocation();
-                                  }else{
-                                    await getCurrentLocationMobile();
+                                  else{
+                                    DriverJobFormDataModel driverJobFormDataModel = DriverJobFormDataModel(
+                                        siteName: siteNameController.text.trim()
+                                            .toString(),
+                                        ticketNumber: ticketNumberController
+                                            .text.trim().toString(),
+                                        faCode: faCodeController.text.trim()
+                                            .toString(),
+                                        ticketType: driverController
+                                            .selTicketType.value,
+                                        gallonInGenerator: gallonInGeneratorController
+                                            .text.trim().toString(),
+                                        pricePerGallonGenerator: pricePerGallonGeneratorController
+                                            .text.trim().toString(),
+                                        generatorHr: generatorHrContoller.text
+                                            .trim().toString(),
+                                        generatorMin: generatorMinContoller.text
+                                            .trim().toString(),
+                                        matsId: matsIdContoller.text.trim()
+                                            .toString(),
+                                        gallonInTruck: gallonInTruckController
+                                            .text.trim().toString(),
+                                        pricePerGallon: pricePerGallonController
+                                            .text.trim().toString(),
+                                        driverJobId: PreferenceManager()
+                                            .getDriverJobId()
+                                            .toString(),
+                                        jobEndTime: "${DateTime.now()
+                                            .toIso8601String()}Z",
+                                        jobStartTime: "${DateTime.now()
+                                            .toIso8601String()}Z",
+                                        userLat: "",
+                                        userLong: "",
+                                        childTicketNumber: childTicketController
+                                            .text.trim().toString(),
+                                        description: descriptionController.text
+                                            .trim().toString(),
+                                        selCloseOrUpdated: driverController
+                                            .selCloseOrUpdated.value,
+                                        saveType: "SUBMIT"
+                                    );
+                                    saveDriverJobFormData(driverJobFormDataModel);
+                                    ShowMessages().showSnackBarRed("", "You are currently offline. Your data has been saved and will be submitted automatically once you reconnect to the internet.");
                                   }
-
-                                  DriverJobFormDataModel driverJobFormDataModel = DriverJobFormDataModel(
-                                      siteName: siteNameController.text.trim().toString(),
-                                      ticketNumber: ticketNumberController.text.trim().toString(),
-                                      faCode: faCodeController.text.trim().toString(),
-                                      ticketType: driverController.selTicketType.value,
-                                      gallonInGenerator: gallonInGeneratorController.text.trim().toString(),
-                                      pricePerGallonGenerator: pricePerGallonGeneratorController.text.trim().toString(),
-                                      generatorHr: generatorHrContoller.text.trim().toString(),
-                                      generatorMin: generatorMinContoller.text.trim().toString(),
-                                      matsId: matsIdContoller.text.trim().toString(),
-                                      gallonInTruck: gallonInTruckController.text.trim().toString(),
-                                      pricePerGallon: pricePerGallonController.text.trim().toString(),
-                                      driverJobId: PreferenceManager().getDriverJobId().toString(),
-                                      jobEndTime: "${DateTime.now().toIso8601String()}Z",
-                                      jobStartTime: "${DateTime.now().toIso8601String()}Z",
-                                      userLat: "$selAddLat",
-                                      userLong: "$selAddLong"
-                                  );
-                                  PreferenceManager().saveDriverJobFormDataModel(driverJobFormDataModel: driverJobFormDataModel);
-                                  var jsonParam = {
-                                    "driver_job_id": PreferenceManager().getDriverJobId(),
-                                    "site_name":siteNameController.text.trim().toString(),
-                                    "req_frm":0,
-                                    "ticket_number": ticketNumberController.text.trim().toString(),
-                                    "child_ticket": childTicketController.text.trim().toString(),
-                                    "fa_code": faCodeController.text.trim().toString(),
-                                    "ticket_type": driverController.selTicketType.value,
-                                    "gallons": gallonInGeneratorController.text.trim().toString(),
-                                    "generator_hr": generatorHrContoller.text.trim().toString(),
-                                    "generator_min": generatorMinContoller.text.trim().toString(),
-                                    "mats_id": matsIdContoller.text.trim().toString(),
-                                    "closed_or_updated": (driverController.selCloseOrUpdated.value == "Select")?"":driverController.selCloseOrUpdated.value,
-                                    "gallons_in_truck": gallonInTruckController.text.trim().toString(),
-                                    "price_per_gal_for_truck": pricePerGallonController.text.trim().toString(),
-                                    "price_per_gal_for_generator": pricePerGallonGeneratorController.text.trim().toString(),
-                                    "status_id": 0,
-                                    "job_user_end_time": "${DateTime.now().toIso8601String()}Z",
-                                    "job_user_start_time": "${DateTime.now().toIso8601String()}Z",
-                                    "job_start_longitude": "",
-                                    "job_start_latitude": "",
-                                    "job_start_location": "",
-                                    "job_end_location": "",
-                                    "job_end_longitude": "$selAddLong",
-                                    "job_end_latitude": "$selAddLat",
-                                    "job_start_ip_address": "",
-                                    "job_end_ip_address": "",
-                                    "description": descriptionController.text.trim().toString(),
-                                    "created_by": int.parse(PreferenceManager().getUserId()),
-                                    "user_time": "${DateTime.now().toIso8601String()}Z",
-                                    "documents": "",
-                                    "spmode": 0
-                                  };
-                                  print("jsonParam>>>> $jsonParam");
-                                  await driverController.driverJob(jsonParam: jsonParam,isJobStarted: false);
-                                  driverController.isLoading.value = false;
                                 },
                                 buttonText: "Submit Job",
                               ),
@@ -905,6 +1047,16 @@ class _DriverHomeState extends State<DriverHome> {
     );
   }
 
+  Future<bool> checkInternet() async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult == ConnectivityResult.mobile ||
+        connectivityResult == ConnectivityResult.wifi) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   Future<void> saveDriverJobFormData(DriverJobFormDataModel model) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String jsonString = jsonEncode(model.toJson()); // Convert model to JSON string
@@ -918,11 +1070,6 @@ class _DriverHomeState extends State<DriverHome> {
 
     Map<String, dynamic> jsonMap = jsonDecode(jsonString); // Decode JSON
     return DriverJobFormDataModel.fromJson(jsonMap);
-  }
-
-  Future<void> removeDriverJobFormData() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove('driverJobFormData');
   }
 
   void clearControllers() {

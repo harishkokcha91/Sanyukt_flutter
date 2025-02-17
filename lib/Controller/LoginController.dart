@@ -50,7 +50,7 @@ class LoginController extends GetxController with StateMixin {
             username: loginRes.value!.data!.data![0].username);
         PreferenceManager().saveUserId(
             userId: loginRes.value!.data!.data![0].userid.toString());
-        CustomNavigator.pushReplace(Routes.HOME);
+        CustomNavigator.pushReplace(Routes.JOB_LIST);
       }else{
         ShowMessages().showSnackBarRed("",loginRes.value!.msg);
       }
