@@ -66,13 +66,13 @@ class DriverController extends GetxController with StateMixin {
           hasJobStarted.value = false;
           removeDriverJobFormData();
         }
-        ShowMessages().showSnackBarGreen("", driverStartJobDataModel.value!.msg);
+        // ShowMessages().showSnackBarGreen("", driverStartJobDataModel.value!.msg);
         print("data>>63>> ${driverStartJobDataModel.value!.status}");
       }else if(driverStartJobDataModel.value!.status =="10") {
         ShowMessages().showSnackBarRed("", driverStartJobDataModel.value!.msg);
         CustomNavigator.pushTo(Routes.LOGOUT);
       }else{
-        ShowMessages().showSnackBarRed("", driverStartJobDataModel.value!.msg);
+        // ShowMessages().showSnackBarRed("", driverStartJobDataModel.value!.msg);
       }
 
     }

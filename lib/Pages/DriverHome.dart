@@ -259,13 +259,14 @@ class _DriverHomeState extends State<DriverHome> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) async{
-       if(PreferenceManager().getDriverJobId() != 0){
-         driverController.hasJobStarted.value = true;
-       }else{
-         driverController.hasJobStarted.value = false;
-       }
+       // if(PreferenceManager().getDriverJobId() != 0){
+       //
+       // }else{
+       //
+       // }
        DriverJobFormDataModel? driverJobFormDataModel = await getDriverJobFormData();
        if(driverJobFormDataModel != null){
+         driverController.hasJobStarted.value = true;
          siteNameController.text = driverJobFormDataModel.siteName.toString();
          ticketNumberController.text = driverJobFormDataModel.ticketNumber.toString();
          childTicketController.text = driverJobFormDataModel.childTicketNumber.toString();
@@ -293,6 +294,8 @@ class _DriverHomeState extends State<DriverHome> {
            }
          }
 
+       }else{
+         driverController.hasJobStarted.value = false;
        }
 
     });
@@ -317,49 +320,103 @@ class _DriverHomeState extends State<DriverHome> {
                           return (driverController.isLoading.value)?Loader():
                           PrimaryButton(
                               onTap: () async{
-                                driverController.isLoading.value = true;
-                                if(kIsWeb) {
-                                  await getUserLocation();
+                                bool isOnline = await checkInternet();
+                                print("isOnline>>> $isOnline");
+                                if(isOnline){
+                                  driverController.isLoading.value = true;
+                                  DriverJobFormDataModel? driverJobFormDataModel = await getDriverJobFormData();
+                                  if(driverJobFormDataModel !=  null) {
+                                    var jsonParam = {
+                                      "driver_job_id": driverJobFormDataModel.driverJobId??'',
+                                      "site_name": driverJobFormDataModel.siteName??"",
+                                      "req_frm": 0,
+                                      "ticket_number": driverJobFormDataModel.ticketNumber??"",
+                                      "child_ticket": driverJobFormDataModel.childTicketNumber??"",
+                                      "fa_code": driverJobFormDataModel.faCode??"",
+                                      "ticket_type": driverJobFormDataModel.ticketType??"",
+                                      "gallons": driverJobFormDataModel.gallonInGenerator??"",
+                                      "generator_hr": driverJobFormDataModel.generatorHr??"",
+                                      "generator_min": driverJobFormDataModel.generatorMin??"",
+                                      "mats_id": driverJobFormDataModel.matsId??"",
+                                      "closed_or_updated": (driverJobFormDataModel.selCloseOrUpdated == "Select") ? ""
+                                          : driverJobFormDataModel.selCloseOrUpdated,
+                                      "gallons_in_truck": driverJobFormDataModel.gallonInTruck,
+                                      "price_per_gal_for_truck": driverJobFormDataModel.pricePerGallon,
+                                      "price_per_gal_for_generator": driverJobFormDataModel.pricePerGallonGenerator,
+                                      "status_id": 0,
+                                      "job_user_end_time": driverJobFormDataModel.jobStartTime,
+                                      "job_user_start_time": driverJobFormDataModel.jobEndTime,
+                                      "job_start_longitude": "",
+                                      "job_start_latitude": "",
+                                      "job_start_location": "",
+                                      "job_end_location": "",
+                                      "job_end_longitude": driverJobFormDataModel.userLong??"",
+                                      "job_end_latitude": driverJobFormDataModel.userLat??"",
+                                      "job_start_ip_address": "",
+                                      "job_end_ip_address": "",
+                                      "description": driverJobFormDataModel.description??"",
+                                      "created_by": int.parse(PreferenceManager().getUserId()),
+                                      "user_time": driverJobFormDataModel.jobEndTime,
+                                      "documents": "",
+                                      "spmode": 0
+                                    };
+                                    print("jsonParam>>>> $jsonParam");
+                                    await Get.put(DriverController()).driverJob(
+                                        jsonParam: jsonParam,
+                                        isJobStarted: false);
+                                  }
+                                  if (kIsWeb) {
+                                    await getUserLocation();
+                                  } else {
+                                    await getCurrentLocationMobile();
+                                  }
+                                  var jsonParam = {
+                                    "driver_job_id": 0,
+                                    "site_name": "",
+                                    "req_frm": 0,
+                                    "ticket_number": 0,
+                                    "child_ticket": 0,
+                                    "fa_code": 0,
+                                    "ticket_type": "",
+                                    "gallons": 0,
+                                    "generator_hr": 0,
+                                    "generator_min": 0,
+                                    "mats_id": 0,
+                                    "closed_or_updated": "",
+                                    "gallons_in_truck": 0,
+                                    "price_per_gal_for_truck": 0,
+                                    "price_per_gal_for_generator": 0,
+                                    "status_id": 0,
+                                    "job_user_start_time": "${DateTime.now()
+                                        .toIso8601String()}Z",
+                                    "job_user_end_time": "${DateTime.now()
+                                        .toIso8601String()}Z",
+                                    "job_end_longitude": "$selAddLong",
+                                    "job_end_latitude": "$selAddLat",
+                                    "job_start_location": "",
+                                    "job_end_location": "",
+                                    "job_start_latitude": "$selAddLat",
+                                    "job_start_longitude": "$selAddLong",
+                                    "job_start_ip_address": "",
+                                    "job_end_ip_address": "",
+                                    "created_by": int.parse(
+                                        PreferenceManager().getUserId()),
+                                    "description": "",
+                                    "documents": "",
+                                    "user_time": "${DateTime.now()
+                                        .toIso8601String()}Z",
+                                    "spmode": 0
+                                  };
+                                  print("jsonParam>>>> $jsonParam");
+                                  await driverController.driverJob(
+                                      jsonParam: jsonParam, isJobStarted: true);
+                                  clearControllers();
+                                  driverController.isLoading.value = false;
+
                                 }else{
-                                  await getCurrentLocationMobile();
+                                  ShowMessages().showSnackBarRed("", "You are currently offline. To start a new job, a network connection is required. Please check your internet connection and try again.");
                                 }
-                                var jsonParam = {
-                                  "driver_job_id": 0,
-                                  "site_name":"",
-                                  "req_frm":0,
-                                  "ticket_number": 0,
-                                  "child_ticket": 0,
-                                  "fa_code": 0,
-                                  "ticket_type": "",
-                                  "gallons": 0,
-                                  "generator_hr": 0,
-                                  "generator_min": 0,
-                                  "mats_id": 0,
-                                  "closed_or_updated": "",
-                                  "gallons_in_truck": 0,
-                                  "price_per_gal_for_truck": 0,
-                                  "price_per_gal_for_generator": 0,
-                                  "status_id": 0,
-                                  "job_user_start_time": "${DateTime.now().toIso8601String()}Z",
-                                  "job_user_end_time": "${DateTime.now().toIso8601String()}Z",
-                                  "job_end_longitude": "$selAddLong",
-                                  "job_end_latitude": "$selAddLat",
-                                  "job_start_location": "",
-                                  "job_end_location": "",
-                                  "job_start_latitude": "$selAddLat",
-                                  "job_start_longitude": "$selAddLong",
-                                  "job_start_ip_address": "",
-                                  "job_end_ip_address": "",
-                                  "created_by": int.parse(PreferenceManager().getUserId()),
-                                  "description": "",
-                                  "documents": "",
-                                  "user_time": "${DateTime.now().toIso8601String()}Z",
-                                  "spmode": 0
-                                };
-                                print("jsonParam>>>> $jsonParam");
-                                await driverController.driverJob(jsonParam: jsonParam,isJobStarted: true);
-                                clearControllers();
-                                driverController.isLoading.value = false;
+
                               },
                               buttonText: "Start Job"
                           );
@@ -973,6 +1030,7 @@ class _DriverHomeState extends State<DriverHome> {
                                     );
                                     saveDriverJobFormData(driverJobFormDataModel);
                                     ShowMessages().showSnackBarRed("", "You are currently offline. Your data has been saved and will be submitted automatically once you reconnect to the internet.");
+                                    driverController.hasJobStarted.value = false;
                                   }
                                 },
                                 buttonText: "Submit Job",

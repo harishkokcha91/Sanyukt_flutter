@@ -90,7 +90,7 @@ class AuthController extends GetxController with StateMixin {
               jsonParam: jsonParam,
               isJobStarted: false);
         }
-        CustomNavigator.pushReplace(Routes.JOB_LIST);
+        CustomNavigator.pushReplace(Routes.HOME);
       } else {
         CustomNavigator.pushReplace(Routes.LOGIN);
       }
