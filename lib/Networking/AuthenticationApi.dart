@@ -1,11 +1,10 @@
 import 'package:dio/dio.dart';
+import 'package:timesheetgt/Model/AuthLoginResponse.dart';
 import '../Constants/ApiEndPoints.dart';
-import '../Model/AuthResonseModel.dart';
 import '../Utils/GetDio.dart';
 
 class AuthenticationApi {
   var dio = GetDio().getDio();
-
 
   //Login
   Future<dynamic> login({jsonData}) async {
@@ -15,8 +14,8 @@ class AuthenticationApi {
         ApiEndPoints.loginURL,
         data: jsonData
       );
-      print('qwertyu>>logout> ${response.data} ${ApiEndPoints.loginURL}');
-      return AuthResponseModel.fromJson(response.data);
+      print('qwertyu>>logout> ${response.data['token']} ${ApiEndPoints.loginURL}');
+      return AuthLoginResponse.fromJson(response.data);
     } catch (e) {
       print("error>>> ${e.toString()}");
       return null;

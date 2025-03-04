@@ -17,7 +17,7 @@ import 'package:timesheetgt/Widgets/ParentWidgetMobile.dart';
 import 'package:timesheetgt/Widgets/PrimaryButton.dart';
 import 'package:get/get.dart';
 import 'package:timesheetgt/Widgets/TextFieldPrimary.dart';
-import 'package:google_geocoding/google_geocoding.dart' as gCoding;
+// import 'package:google_geocoding/google_geocoding.dart' as gCoding;
 import 'package:location/location.dart' as locationLib;
 import 'package:geolocator/geolocator.dart' as geolocator;
 import 'package:geolocator/geolocator.dart';
@@ -45,8 +45,8 @@ class DriverHome extends StatefulWidget {
 
 class _DriverHomeState extends State<DriverHome> {
 
-  var googleGeocoding = gCoding.GoogleGeocoding(ApiEndPoints.googleAPIKey);
-  gCoding.GeocodingResult? selectedAddressOnMap ;
+  // var googleGeocoding = gCoding.GoogleGeocoding(ApiEndPoints.googleAPIKey);
+  // gCoding.GeocodingResult? selectedAddressOnMap ;
   // Rxn<LatLng> newCoordinates =  Rxn<LatLng>();
   RxString stMyLocation = "".obs;
   late double selAddLat;

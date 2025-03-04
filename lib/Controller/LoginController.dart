@@ -19,6 +19,30 @@ class LoginController extends GetxController with StateMixin {
     super.onInit();
   }
 
+  Future<void> callLoginEmail({required String email, required String password}) async {
+    var jsonParam = {
+      "email": email,
+      "password": password
+    };
+
+    print("jsonParam>>>> ${jsonEncode(jsonParam)}");
+    isLoading.value = true;
+
+    var data = await AuthenticationApi().login(jsonData: jsonParam);
+    print("data>>>> $data");
+    print("data********* ${data.token}");
+    isLoading.value = false;
+    if (data != null) {
+      PreferenceManager().saveLogin(isLoggedIn: true);
+      PreferenceManager().saveToken(token: data.token);
+
+      CustomNavigator.pushReplace(Routes.PROFILES);
+    } else {
+      ShowMessages().showSnackBarRed("", "Login failed. Please try again.");
+    }
+
+    isLoading.value = false;
+  }
 
   Future<void> callLogin({mobileNo,password}) async {
     var jsonParam = {

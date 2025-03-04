@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:responsive_builder/responsive_builder.dart';
+import 'package:timesheetgt/Pages/LoginEmail.dart';
 
 
 import '../Controller/AuthController.dart';
@@ -39,11 +40,11 @@ class _LoginEntryPointState extends State<LoginEntryPoint> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: onWillPop,
+    return PopScope(
+      canPop: false,
       child: Scaffold(
         body: ScreenTypeLayout.builder(
-          mobile: (_) => const LoginPhone(),
+          mobile: (_) => const LoginEmail(),
           desktop: (_) => Container(),
           tablet: (_) => Container(),
         ),

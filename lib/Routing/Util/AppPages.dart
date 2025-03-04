@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:timesheetgt/Pages/DriverHome.dart';
 import 'package:timesheetgt/Pages/DriverTicketListPage.dart';
+import 'package:timesheetgt/Pages/ProfileListPage.dart';
 
 import '../../Pages/LoginEntryPoint.dart';
 import '../../Pages/LogoutWeb.dart';
@@ -31,7 +32,12 @@ class AppPages {
     GetPage(
         name: Routes.HOME,
         // middlewares: middleWares,
-        page: () => const DriverHome(),
+        page: () => const ProfileListPage(),
+        transition: Transition.noTransition),
+    GetPage(
+        name: Routes.PROFILES,
+        // middlewares: middleWares,
+        page: () => const ProfileListPage(),
         transition: Transition.noTransition),
 
     GetPage(
