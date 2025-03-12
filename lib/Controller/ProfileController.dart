@@ -1,12 +1,9 @@
 import 'dart:convert';
 
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import '../Model/ProfileResponse.dart';
 import '../Networking/ProfileApi.dart';
-import '../Utils/CustomNavigator.dart';
 import '../Utils/ShowMessages.dart';
-import '../Routing/Util/AppRoutes.dart';
 
 class ProfileController extends GetxController with StateMixin {
   RxBool isLoading = false.obs;
@@ -16,7 +13,7 @@ class ProfileController extends GetxController with StateMixin {
     super.onInit();
   }
 
-  Future<void> createProfile(Map<String, dynamic> profileData) async {
+  Future<bool> createProfile(Map<String, dynamic> profileData) async {
     isLoading.value = true;
     var data = await ProfileApi().createProfile(jsonData: profileData);
     isLoading.value = false;
@@ -24,8 +21,10 @@ class ProfileController extends GetxController with StateMixin {
     if (data != null) {
       ShowMessages().showSnackBarGreen("Success", "Profile created successfully.");
       // CustomNavigator.pushReplace(Routes.PROFILE_LIST);
+      return true;
     } else {
       ShowMessages().showSnackBarRed("Error", "Failed to create profile. Try again.");
+      return false;
     }
   }
 

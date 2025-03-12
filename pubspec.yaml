@@ -45,7 +45,7 @@ dev_dependencies:
   dio_smart_retry: ^6.0.0
   permission_handler: 11.3.1
   intl: ^0.19.0
-  url_strategy: ^0.3.0
+  url_strategy: ^0.2.0
   flutter_screenutil: ^5.8.2
   get_storage: ^2.1.1
   responsive_builder: ^0.7.0

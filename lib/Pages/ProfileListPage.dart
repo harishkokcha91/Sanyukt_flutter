@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../Controller/ProfileController.dart';
 import '../Model/ProfileResponse.dart';
+import '../Routing/Util/AppRoutes.dart';
+import '../Utils/CustomNavigator.dart';
 import '../Utils/GetDio.dart';
 
 class ProfileListPage extends StatefulWidget {
@@ -13,7 +15,7 @@ class ProfileListPage extends StatefulWidget {
 }
 
 class _ProfileListPageState extends State<ProfileListPage> {
-  List<Datum> profiles = []; // Store Datum objects
+  List<Datum> profiles = [];
   bool isLoading = true;
   var dio = GetDio().getDio();
   final ProfileController controller = Get.put(ProfileController());
@@ -29,8 +31,8 @@ class _ProfileListPageState extends State<ProfileListPage> {
     ProfileResponse? response = await controller.fetchProfiles(page: 1, limit: 10);
     if (response != null && response.data != null) {
       setState(() {
-        profiles = response.data!; // Assign parsed data
-        isLoading = false; // Update loading state
+        profiles = response.data!;
+        isLoading = false;
       });
     } else {
       setState(() {
@@ -44,7 +46,7 @@ class _ProfileListPageState extends State<ProfileListPage> {
     return Scaffold(
       appBar: AppBar(title: Text('Profiles')),
       body: isLoading
-          ? Center(child: CircularProgressIndicator()) // Show loader
+          ? Center(child: CircularProgressIndicator())
           : profiles.isEmpty
           ? Center(child: Text("No profiles found."))
           : ListView.builder(
@@ -62,9 +64,24 @@ class _ProfileListPageState extends State<ProfileListPage> {
               title: Text(profile.name ?? 'Unknown'),
               subtitle: Text("${profile.qualification ?? 'N/A'} - ${profile.occupation ?? 'N/A'}"),
               trailing: Text(profile.maritalStatus?.toUpperCase() ?? 'UNKNOWN'),
+              onTap: () {
+                CustomNavigator.pushTo(Routes.PROFILE_DETAILS, arguments: profile);
+              },
             ),
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Navigate to the new profile page
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(builder: (context) => NewProfilePage()),
+          // );
+          CustomNavigator.pushTo(Routes.CREATE_PROFILE);
+        },
+        child: Icon(Icons.add),
+        tooltip: "Add New Profile",
       ),
     );
   }

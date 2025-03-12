@@ -1,10 +1,12 @@
 import 'package:get/get.dart';
 import 'package:timesheetgt/Pages/DriverHome.dart';
 import 'package:timesheetgt/Pages/DriverTicketListPage.dart';
+import 'package:timesheetgt/Pages/ProfileDetailPage.dart';
 import 'package:timesheetgt/Pages/ProfileListPage.dart';
 
 import '../../Pages/LoginEntryPoint.dart';
 import '../../Pages/LogoutWeb.dart';
+import '../../Pages/NewProfilePage.dart';
 import '../../Pages/Splash.dart';
 import '../Middleware/AuthMiddleware.dart';
 import '../Middleware/Middleware.dart';
@@ -39,6 +41,16 @@ class AppPages {
         // middlewares: middleWares,
         page: () => const ProfileListPage(),
         transition: Transition.noTransition),
+    GetPage(
+            name: Routes.CREATE_PROFILE,
+            // middlewares: middleWares,
+            page: () => const NewProfilePage(),
+            transition: Transition.topLevel),  
+    GetPage(
+            name: Routes.PROFILE_DETAILS,
+            // middlewares: middleWares,
+            page: () => ProfileDetailPage(profile: Get.arguments),
+            transition: Transition.topLevel),
 
     GetPage(
         name: Routes.JOB_LIST,

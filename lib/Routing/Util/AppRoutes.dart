@@ -7,6 +7,8 @@ abstract class Routes {
   static const EMPTY = '/not-found';
   static const HOME = '/home';
   static const PROFILES = "/profiles";
+  static const CREATE_PROFILE = "/createNewProfile";
   static const JOB_LIST = '/driver-jobs';
+  static const PROFILE_DETAILS = '/profile_details';
 
   }

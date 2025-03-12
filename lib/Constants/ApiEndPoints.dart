@@ -6,7 +6,7 @@ class ApiEndPoints {
   // static const String localHostBaseUrl = "http://127.0.0.1:8084/"; //for web
   static const String loginURL = "${localHostBaseUrl}auth/login";
   static const String profileURL = "${localHostBaseUrl}profile";
-  static const String createProfileUrl = "${localHostBaseUrl}profile/matrimonialProfiles";
+  static const String createProfileUrl = "${localHostBaseUrl}profile/matrimonialProfiles/";
   static const String getProfilesUrl = "${localHostBaseUrl}profile/matrimonialProfiles/";
   static const String getProfilesByUserIdUrl = "${localHostBaseUrl}profile/matrimonialProfiles/byuserId";
   static const String getProfileByIdUrl = "${localHostBaseUrl}profile/matrimonialProfiles";
